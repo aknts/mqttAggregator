@@ -1,0 +1,28 @@
+{
+  "name": "mqttaggregator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aknts/mqttaggregator.git"
+  },
+  "author": "aknts",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aknts/mqttaggregator/issues"
+  },
+  "homepage": "https://github.com/aknts/mqttaggregator#readme",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "mqttlogger": "github:aknts/mqttlogger",
+    "mqttmod": "github:aknts/mqttmod",
+    "path": "^0.12.7",
+    "sqlite3": "^ 4.0.0",
+    "websocket": "^1.0.28"
+  }
+}
