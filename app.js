@@ -245,7 +245,7 @@ function heapCheck () {
 }
 
 // Begin execution
-livemodules.push({"node":mynodeid,"name":process.title});
+livemodules.push({"node":mynodeid,"name":"aggregator"});
 
 // Create table in our sqlite db
 db.run('create table messages (id integer not null primary key autoincrement, uid varchar(40) not null, lat double, lon double, timestamp integer)',  (err,row) => {
