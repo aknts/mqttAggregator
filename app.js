@@ -278,6 +278,38 @@ function kubeservice() {
 	req.end();
 }
 
+function deleteservice() {
+	var qs = require("querystring");
+	var http = require("http");	
+	var options = {
+	  "method": "DELETE",
+	  "hostname": ""+kubectlproxy[0]+"",
+	  "port": ""+kubectlproxy[1]+"",
+	  "path": "/api/v1/namespaces/"+namespace+"/services/"+appname+"",
+	  "headers": {
+		"content-type": "application/json"
+	  }
+	};
+	var req = http.request(options, function (res) {
+		var chunks = [];
+		l.debug('Building request header');
+		res.on("data", function (chunk) {
+			chunks.push(chunk);
+		});
+		l.debug('Building data payload');
+		res.on("end", function () {
+			var body = Buffer.concat(chunks);
+		});
+	});
+	req.on('error', error => {
+  		console.error(error)
+	});
+	l.debug('Sending now to kubectl http proxy');
+	req.write('{"gracePeriodSeconds": 0,"orphanDependents": false}');
+	req.end();
+}
+
+
 // Begin execution
 livemodules.push({"node":mynodeid,"name":"aggregator"});
 
