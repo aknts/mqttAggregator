@@ -167,7 +167,7 @@ function startOutServer(clients){
 	},rate_reconnect);
 
 	var outserver = require('./outserver');
-	outserver.init(8114, function(state){
+	outserver.init(30114, function(state){
 		let clientId = state.connectionId;
 		let data = state.payload;
 		let connection = state.connection;
@@ -271,7 +271,7 @@ function kubeservice() {
 		});
 	});
 	l.debug('Sending now to kubectl http proxy');
-	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 80,"targetPort":80},{"name": "ws","port": 8114,"targetPort":8114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
+	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
 	req.end();
 }
 
