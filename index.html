@@ -137,7 +137,7 @@
 
         // open connection
         var host = location.hostname;
-        var connection = new WebSocket('ws://'+host+':8114');
+        var connection = new WebSocket('ws://'+host+':30114');
 
         connection.onerror = function (error) {
           console.error('WebSocket Error ' + error);
