@@ -270,6 +270,10 @@ function kubeservice() {
 			var body = Buffer.concat(chunks);
 		});
 	});
+	req.on('error', error => {
+  		console.error(error)
+	})
+	
 	l.debug('Sending now to kubectl http proxy');
 	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
 	req.end();
