@@ -269,7 +269,7 @@ function kubeservice() {
 		});
 	});
 	l.debug('Sending now to kubectl http proxy');
-	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "nqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 80,"targetPort":80},{"name": "ws","port": 8114,"targetPort":8114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
+	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 80,"targetPort":80},{"name": "ws","port": 8114,"targetPort":8114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
 	req.end();
 }
 
