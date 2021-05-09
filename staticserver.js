@@ -25,7 +25,7 @@ var staticServer = {
 		            response.end(content, 'utf-8');
 		        }
 		    });
-		}).listen(80);
+		}).listen(30080);
 	l.info('Static server running at port 80');
 	},
 };
