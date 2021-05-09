@@ -248,7 +248,7 @@ function heapCheck () {
 }
 
 function kubeservice() {
-	var qs = require("querystring");
+	/*var qs = require("querystring");
 	var http = require("http");	
 	var options = {
 	  "method": "POST",
@@ -275,6 +275,35 @@ function kubeservice() {
 	});
 	l.debug('Sending now to kubectl http proxy');
 	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
+	req.end();*/
+	const https = require('https')
+
+	const serviceobj = JSON.stingify({"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":appname},"type":"NodePort"}});
+
+	const options = {
+	  hostname: kubectlproxy[0],
+	  port: kubectlproxy[1],
+	  path: '/apis/apps/v1/namespaces/"'+namespace+'"/services/',
+	  method: 'POST',
+	  headers: {
+	    'Content-Type': 'application/json',
+	    'Content-Length': data.length
+	  }
+	}
+
+	const req = https.request(options, res => {
+	  console.log(`statusCode: ${res.statusCode}`)
+
+	  res.on('data', d => {
+	    process.stdout.write(d)
+	  })
+	})
+
+	req.on('error', error => {
+	  console.error(error)
+	})
+
+	req.write(serviceobj);
 	req.end();
 }
 
