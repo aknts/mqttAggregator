@@ -30,9 +30,9 @@ const l = require('mqttlogger')(broker, logtopic, mqttmod, 1);
 var db = dbclass.connectDB(sqlite3,dbfile);
 
 // Variables
-var readyresponse = '{"node":"'+mynodeid+'","name":"'+process.title+'","request":"ready"}';
-var execresponse = '{"node":"'+mynodeid+'","name":"'+process.title+'","request":"execute"}';
-var terminatingresponse = '{"node":"'+mynodeid+'","name":"'+process.title+'","request":"terminating"}';
+var readyresponse = '{"node":"'+mynodeid+'","name":"aggregator","request":"ready"}';
+var execresponse = '{"node":"'+mynodeid+'","name":"aggregator","request":"execute"}';
+var terminatingresponse = '{"node":"'+mynodeid+'","name":"aggregator","request":"terminating"}';
 var halt = 1;
 var appmodules = ['emitter','filter','loadbalancer','trilaterator','aggregator'];
 var livemodules = [];
