@@ -353,4 +353,5 @@ mqttmod.send(broker,pipelinetopic,readyresponse);
 process.on('SIGTERM', function onSigterm () {
 	l.info('Got SIGTERM');
 	mqttmod.send(broker,pipelinetopic,terminatingresponse);
+	deleteservice();
 });
