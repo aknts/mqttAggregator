@@ -14,6 +14,7 @@ var previousnode = config.previousnode;
 var nextnodedatatopic = nextnode+'/data';
 var previousnodecontroltopic = previousnode+'/control';
 var previousnodebroadcasttopic = previousnode+'/broadcast';
+var appname = config.appname;
 var pipelinetopic = config.nameid+'/broadcast'
 var rate_reconnect = config.appsettings.rate_reconnect;
 var logmode = config.appsettings.logmode;
@@ -86,6 +87,7 @@ function filterRequests(payload){
 				if (livemodules.length == appmodules.length) {
 					if (halt == 1) {
 						mqttmod.send(broker,previousnodebroadcasttopic,execresponse);
+						kubeservice();
 						halt = 0;
 						l.info('All modules ready');
 						l.info('Starting application');
@@ -268,7 +270,7 @@ function kubeservice() {
 		});
 	});
 	l.debug('Sending now to kubectl http proxy');
-	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "service-example"},"spec":{"ports":[{"name": "http","port": 80,"targetPort":80}],"selector":{"app":"nginx"},"type":"LoadBalancer"}}');
+	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "nqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 80,"targetPort":80},{"name": "ws","port": 8114,"targetPort":8114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
 	req.end();
 }
 
