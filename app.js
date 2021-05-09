@@ -276,35 +276,6 @@ function kubeservice() {
 	l.debug('Sending now to kubectl http proxy');
 	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
 	req.end();
-	/*const http = require('http');
-
-	const serviceobj = JSON.stringify({"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":appname},"type":"NodePort"}});
-	console.log(serviceobj);
-	const options = {
-	  hostname: kubectlproxy[0],
-	  port: kubectlproxy[1],
-	  path: '/apis/apps/v1/namespaces/'+namespace+'/services',
-	  method: 'POST',
-	  headers: {
-	    'Content-Type': 'application/json',
-	    'Content-Length': serviceobj.length
-	  }
-	}
-
-	const req = http.request(options, res => {
-	  console.log(`statusCode: ${res.statusCode}`)
-	  console.log(res);
-	  res.on('data', d => {
-	    process.stdout.write(d)
-	  })
-	})
-
-	req.on('error', error => {
-	  console.error(error)
-	})
-
-	req.write(serviceobj);
-	req.end();*/
 }
 
 // Begin execution
