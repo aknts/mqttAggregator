@@ -285,7 +285,7 @@ function deleteservice() {
 	  "method": "DELETE",
 	  "hostname": ""+kubectlproxy[0]+"",
 	  "port": ""+kubectlproxy[1]+"",
-	  "path": "/api/v1/namespaces/"+namespace+"/services/"+appname+"",
+	  "path": "/api/v1/namespaces/"+namespace+"/services/"+appname+"-service",
 	  "headers": {
 		"content-type": "application/json"
 	  }
