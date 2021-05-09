@@ -87,7 +87,6 @@ function filterRequests(payload){
 				if (livemodules.length == appmodules.length) {
 					if (halt == 1) {
 						mqttmod.send(broker,previousnodebroadcasttopic,execresponse);
-						kubeservice();
 						halt = 0;
 						l.info('All modules ready');
 						l.info('Starting application');
@@ -296,6 +295,7 @@ db.run('create table messages (id integer not null primary key autoincrement, ui
 // Start webserver
 staticServer.init(l);
 startOutServer(frontendClients);
+kubeservice();
 
 // Start recieving control MQTT messages
 l.info('Started recieving control MQTT messages on '+controltopic+'.');
