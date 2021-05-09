@@ -278,7 +278,7 @@ function kubeservice() {
 	req.end();*/
 	const https = require('https')
 
-	const serviceobj = JSON.stingify({"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":appname},"type":"NodePort"}});
+	const serviceobj = JSON.stringify({"kind":"Service","apiVersion": "v1","metadata":{"name": "mqttaggregator-service"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":appname},"type":"NodePort"}});
 
 	const options = {
 	  hostname: kubectlproxy[0],
