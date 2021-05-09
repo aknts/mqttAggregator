@@ -283,7 +283,7 @@ function kubeservice() {
 	const options = {
 	  hostname: kubectlproxy[0],
 	  port: kubectlproxy[1],
-	  path: '/apis/apps/v1/namespaces/"'+namespace+'"/services/',
+	  path: '/apis/apps/v1/namespaces/"'+namespace+'"/services',
 	  method: 'POST',
 	  headers: {
 	    'Content-Type': 'application/json',
