@@ -15,6 +15,7 @@ var nextnodedatatopic = nextnode+'/data';
 var previousnodecontroltopic = previousnode+'/control';
 var previousnodebroadcasttopic = previousnode+'/broadcast';
 var appname = config.appname;
+var kubectlproxy = config.kubeproxy.split(":");
 var pipelinetopic = config.nameid+'/broadcast'
 var rate_reconnect = config.appsettings.rate_reconnect;
 var logmode = config.appsettings.logmode;
