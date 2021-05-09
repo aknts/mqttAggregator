@@ -244,6 +244,34 @@ function heapCheck () {
 	}
 }
 
+function kubeservice() {
+	var qs = require("querystring");
+	var http = require("http");	
+	var options = {
+	  "method": "POST",
+	  "hostname": ""+kubectlproxy[0]+"",
+	  "port": ""+kubectlproxy[1]+"",
+	  "path": "/apis/apps/v1/namespaces/"+namespace+"/services/",
+	  "headers": {
+		"content-type": "application/json"
+	  }
+	};
+	var req = http.request(options, function (res) {
+		var chunks = [];
+		l.debug('Building request header');
+		res.on("data", function (chunk) {
+			chunks.push(chunk);
+		});
+		l.debug('Building data payload');
+		res.on("end", function () {
+			var body = Buffer.concat(chunks);
+		});
+	});
+	l.debug('Sending now to kubectl http proxy');
+	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "service-example"},"spec":{"ports":[{"name": "http","port": 80,"targetPort":80}],"selector":{"app":"nginx"},"type":"LoadBalancer"}}');
+	req.end();
+}
+
 // Begin execution
 livemodules.push({"node":mynodeid,"name":"aggregator"});
 
