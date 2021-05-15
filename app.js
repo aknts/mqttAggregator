@@ -75,23 +75,23 @@ function filterRequests(payload){
 							livemodules.push({"node":requestingNode,"name":requestingNodeName});
 							mqttmod.send(broker,requestingNode+'/control',readyresponse);
 						}
-						l.info('Node '+requestingNode+' reported that is ready');
-						l.info('Informing the new nodes that local node is ready');
+						//l.info('Node '+requestingNode+' reported that is ready');
+						//l.info('Informing the new nodes that local node is ready');
 						console.log(livemodules);
 					} 
 					if (alpha > -1 && beta == 1) {
-						l.info('A '+requestingNodeName+' node already exists');
+						//l.info('A '+requestingNodeName+' node already exists');
 					}
 					if (alpha == -1) {
-						l.info(requestingNodeName+' node is not valid');
+						//l.info(requestingNodeName+' node is not valid');
 					}
 				}
 				if (livemodules.length == appmodules.length) {
 					if (halt == 1) {
 						mqttmod.send(broker,previousnodebroadcasttopic,execresponse);
 						halt = 0;
-						l.info('All modules ready');
-						l.info('Starting application');
+						//l.info('All modules ready');
+						//l.info('Starting application');
 					}
 					if (requestingNodeName == 'trilaterator' && halt == 0) {
 						for(var i = 0; i < livemodules.length; i++){
@@ -119,12 +119,12 @@ function filterRequests(payload){
 					}
 				}
 				if (livemodules.length < appmodules.length) {
-					l.info('Node '+requestingNode+' reported that is terminating, halt application.');
+					//l.info('Node '+requestingNode+' reported that is terminating, halt application.');
 					halt = 1;
 				}
 			break;
 			default:
-				l.info('Didn\'t receive a valid request');
+				//l.info('Didn\'t receive a valid request');
 		}
 	}
 }
@@ -141,6 +141,8 @@ function filterResults(payload){
 				l.debug('Entry inserted in messages table.');
 			}
 		});
+		payload = null;
+		data = null;
 	}
 }
 
@@ -152,7 +154,7 @@ function startOutServer(clients){
 	var interval = setInterval(function(){
 		getFirstTimestamp(function(err, timestamp){	
 			if (err || timestamp <=0){
-				l.info('Trying to get the timestamp of the first record.');
+				//l.info('Trying to get the timestamp of the first record.');
 			} else {
 				firstTimestamp = timestamp;
 				l.debug('Got firstTimestamp: '+firstTimestamp);
@@ -191,7 +193,7 @@ function startOutServer(clients){
 					try{
 						let from = parseInt(currentTimestamp);
 						let to = parseInt(currentTimestamp)+parseInt(data.step);
-						l.info('Getting all data between '+from+' and '+to+' timestamp.');
+						//l.info('Getting all data between '+from+' and '+to+' timestamp.');
 						db.all('select * from messages where timestamp >= '+from+' and timestamp <'+to,  (err,row) => {
 						if (err) {
 							console.log(err);
@@ -200,7 +202,7 @@ function startOutServer(clients){
 							l.debug('Sending data to client');
 							outserver.send(row,connection,l);
 						}
-						l.info('To is '+to);
+						//l.info('To is '+to);
 						});
 						client.currentTimestamp=to;
 					} catch(e){
@@ -335,15 +337,15 @@ startOutServer(frontendClients);
 kubeservice();
 
 // Start recieving control MQTT messages
-l.info('Started recieving control MQTT messages on '+controltopic+'.');
+//l.info('Started recieving control MQTT messages on '+controltopic+'.');
 mqttmod.receive(broker,controltopic,filterRequests);	
 
 // Start recieving data MQTT messages
-l.info('Started recieving data MQTT messages on '+datatopic+'.');
+//l.info('Started recieving data MQTT messages on '+datatopic+'.');
 mqttmod.receive(broker,datatopic,filterResults);
 
 // Start recieving control MQTT messages
-l.info('Started receiving control messages on '+pipelinetopic);
+//l.info('Started receiving control messages on '+pipelinetopic);
 mqttmod.receive(broker,pipelinetopic,filterRequests);
 
 // Inform previous node that you are ready
@@ -351,7 +353,7 @@ mqttmod.receive(broker,pipelinetopic,filterRequests);
 mqttmod.send(broker,pipelinetopic,readyresponse);
 
 process.on('SIGTERM', function onSigterm () {
-	l.info('Got SIGTERM');
+	//l.info('Got SIGTERM');
 	mqttmod.send(broker,pipelinetopic,terminatingresponse);
 	deleteservice();
 });
