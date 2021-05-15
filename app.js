@@ -133,12 +133,12 @@ function filterResults(payload){
 	if (halt == 0) {
 		heapCheck();
 		var data = JSON.parse(payload);
-		l.debug('Received an entry: '+payload);
+		//l.info('Received an entry: '+payload);
 		db.run('insert into messages (uid,lat,lon,timestamp) values ("'+data.uid+'",'+data.lat+','+data.lon+','+data.timestamp+');',  (err,row) => {
 			if (err) {
 				l.error(err.message);
 			} else {
-				l.debug('Entry inserted in messages table.');
+				//l.info('Entry inserted in messages table.');
 			}
 		});
 		payload = null;
@@ -157,7 +157,7 @@ function startOutServer(clients){
 				//l.info('Trying to get the timestamp of the first record.');
 			} else {
 				firstTimestamp = timestamp;
-				l.debug('Got firstTimestamp: '+firstTimestamp);
+				//l.info('Got firstTimestamp: '+firstTimestamp);
 				clients.forEach(function(client){
 					if (client.currentTimestamp < firstTimestamp){
 						client.currentTimestamp = firstTimestamp;
@@ -177,7 +177,7 @@ function startOutServer(clients){
 		let client = clients[clientId];
 		let currentTimestamp = client.currentTimestamp;
 		
-		l.debug('Got client\'s timestamp: '+currentTimestamp);
+		//l.info('Got client\'s timestamp: '+currentTimestamp);
 		
 		switch(state.statusText){			
 			case 'error':
@@ -187,7 +187,7 @@ function startOutServer(clients){
 			case 'message': 
 				if (halt == 0) {
 					if (currentTimestamp == 0){
-						l.debug('Client\'s timestamp is 0 or null.');
+						//l.info('Client\'s timestamp is 0 or null.');
 						break;
 					}
 					try{
@@ -199,7 +199,7 @@ function startOutServer(clients){
 							console.log(err);
 							l.error(err.message);
 						} else {
-							l.debug('Sending data to client');
+							//l.info('Sending data to client');
 							outserver.send(row,connection,l);
 						}
 						//l.info('To is '+to);
@@ -223,7 +223,7 @@ function startOutServer(clients){
 //function to get the oldest record
 function getFirstTimestamp(callback){
 	var firstTimestamp = 0;
-	l.debug('Trying to get the firsttimestamp');
+	//l.info('Trying to get the firsttimestamp');
 	db.each('select timestamp from messages order by timestamp limit 1',  (err,row) => {
 		if (err) {
 			l.error(err.message);
@@ -231,7 +231,7 @@ function getFirstTimestamp(callback){
 			return;
 		} else {
 			firstTimestamp = row.timestamp;
-			l.debug('Found timestamp: '+firstTimestamp);
+			//l.info('Found timestamp: '+firstTimestamp);
 			callback(null,firstTimestamp);
 		}
 	});
@@ -263,11 +263,11 @@ function kubeservice() {
 	};
 	var req = http.request(options, function (res) {
 		var chunks = [];
-		l.debug('Building request header');
+		//l.info('Building request header');
 		res.on("data", function (chunk) {
 			chunks.push(chunk);
 		});
-		l.debug('Building data payload');
+		//l.info('Building data payload');
 		res.on("end", function () {
 			var body = Buffer.concat(chunks);
 		});
@@ -275,7 +275,7 @@ function kubeservice() {
 	req.on('error', error => {
   		console.error(error)
 	});
-	l.debug('Sending now to kubectl http proxy');
+	//l.info('Sending now to kubectl http proxy');
 	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "'+appname+'"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
 	req.end();
 }
@@ -294,11 +294,11 @@ function deleteservice() {
 	};
 	var req = http.request(options, function (res) {
 		var chunks = [];
-		l.debug('Building request header');
+		//l.info('Building request header');
 		res.on("data", function (chunk) {
 			chunks.push(chunk);
 		});
-		l.debug('Building data payload');
+		//l.info('Building data payload');
 		res.on("end", function () {
 			var body = Buffer.concat(chunks);
 		});
@@ -306,7 +306,7 @@ function deleteservice() {
 	req.on('error', error => {
   		console.error(error)
 	});
-	l.debug('Sending now to kubectl http proxy');
+	//l.info('Sending now to kubectl http proxy');
 	req.write('{"gracePeriodSeconds": 0,"orphanDependents": false}');
 	req.end();
 }
@@ -320,12 +320,12 @@ db.run('create table messages (id integer not null primary key autoincrement, ui
 	if (err) {
 		l.error(err.message);
     } else {
-		l.debug('Main table messages was created.');
+		//l.info('Main table messages was created.');
 		db.run('CREATE INDEX timestamp ON messages (timestamp ASC)',  (err,row) => {
 		if (err) {
 			l.error(err.message);
 		} else {
-			l.debug('Timestamp index created.');		
+			//l.info('Timestamp index created.');		
 		}
 		});
 	}
