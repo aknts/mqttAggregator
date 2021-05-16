@@ -252,7 +252,8 @@ function getFirstTimestamp(callback){
 			callback(err);
 			return;
 		} else {
-			firstTimestamp = row.timestamp;
+			//firstTimestamp = row.timestamp;
+			firstTimestamp = row[0].timestamp;
 			l.info('Found timestamp: '+firstTimestamp);
 			callback(null,firstTimestamp);
 		}
