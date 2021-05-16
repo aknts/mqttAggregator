@@ -21,6 +21,7 @@ var pipelinetopic = config.nameid+'/broadcast'
 var rate_reconnect = config.appsettings.rate_reconnect;
 var logmode = config.appsettings.logmode;
 var dbfile = 'dasfest_database.db';
+var dbSettings = {host:'192.168.2.240',user:'nodejs',password:'justanodejsapp'};
 
 // Modules
 const sqlite3 = require('sqlite3').verbose();
@@ -29,6 +30,13 @@ const dbclass = require('./sqlite');
 const staticServer = require('./staticserver');
 const l = require('mqttlogger')(broker, logtopic, mqttmod, logmode);
 var db = dbclass.connectDB(sqlite3,dbfile);
+var mysql = require('mysql');
+var pool  = mysql.createPool({
+  connectionLimit : 10,
+  host            : dbSettings.host,
+  user            : dbSettings.user,
+  password        : dbSettings.password
+});
 
 // Variables
 var readyresponse = '{"node":"'+mynodeid+'","name":"aggregator","request":"ready"}';
@@ -42,6 +50,28 @@ var frontendClients = [];
 var firstentrytrigger = 0;
 
 // Functions
+function initDatabase (callback) {
+	pool.query('drop database if exists dasfest_database', function(err, result){
+		if (err) callback(err);
+		pool.query('create database dasfest_database', function(err){
+			if (err) callback(err);
+			pool.query('use dasfest_database', function(err){
+				if (err) callback(err);
+				pool.query('create table messages (id int not null auto_increment, uid varchar(40) not null, lat double, lon double, timestamp int, primary key (id))', function(err){
+					if (err) callback(err);
+				});
+			});
+		});
+	});
+
+
+	/*let q = 'insert into dasfest_database.messages (uid,lat,lon,timestamp) values ("'+results.uid+'",'+results.lat+','+results.lon+','+results.timestamp+');';
+	pool.query(q, function(err, rows, fields) {
+		if (err) throw err;
+		console.log('Insert data to db');
+	});*/
+}
+
 function filterRequests(payload){
 		try {
 		data = JSON.parse(payload);
@@ -313,6 +343,13 @@ function deleteservice() {
 
 
 // Begin execution
+initDatabase (function(err){
+	if (err){
+		l.error('Error while initializing DB: '+err);
+		l.info('Exiting now.');
+		process.exit(1);
+	}
+)
 livemodules.push({"node":mynodeid,"name":"aggregator"});
 
 // Create table in our sqlite db
