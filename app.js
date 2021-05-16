@@ -75,23 +75,23 @@ function filterRequests(payload){
 							livemodules.push({"node":requestingNode,"name":requestingNodeName});
 							mqttmod.send(broker,requestingNode+'/control',readyresponse);
 						}
-						//l.info('Node '+requestingNode+' reported that is ready');
-						//l.info('Informing the new nodes that local node is ready');
+						l.info('Node '+requestingNode+' reported that is ready');
+						l.info('Informing the new nodes that local node is ready');
 						console.log(livemodules);
 					} 
 					if (alpha > -1 && beta == 1) {
-						//l.info('A '+requestingNodeName+' node already exists');
+						l.info('A '+requestingNodeName+' node already exists');
 					}
 					if (alpha == -1) {
-						//l.info(requestingNodeName+' node is not valid');
+						l.info(requestingNodeName+' node is not valid');
 					}
 				}
 				if (livemodules.length == appmodules.length) {
 					if (halt == 1) {
 						mqttmod.send(broker,previousnodebroadcasttopic,execresponse);
 						halt = 0;
-						//l.info('All modules ready');
-						//l.info('Starting application');
+						l.info('All modules ready');
+						l.info('Starting application');
 					}
 					if (requestingNodeName == 'trilaterator' && halt == 0) {
 						for(var i = 0; i < livemodules.length; i++){
@@ -119,12 +119,12 @@ function filterRequests(payload){
 					}
 				}
 				if (livemodules.length < appmodules.length) {
-					//l.info('Node '+requestingNode+' reported that is terminating, halt application.');
+					l.info('Node '+requestingNode+' reported that is terminating, halt application.');
 					halt = 1;
 				}
 			break;
 			default:
-				//l.info('Didn\'t receive a valid request');
+				l.info('Didn\'t receive a valid request');
 		}
 	}
 }
@@ -133,12 +133,12 @@ function filterResults(payload){
 	if (halt == 0) {
 		heapCheck();
 		var data = JSON.parse(payload);
-		//l.info('Received an entry: '+payload);
+		l.info('Received an entry: '+payload);
 		db.run('insert into messages (uid,lat,lon,timestamp) values ("'+data.uid+'",'+data.lat+','+data.lon+','+data.timestamp+');',  (err,row) => {
 			if (err) {
 				l.error(err.message);
 			} else {
-				//l.info('Entry inserted in messages table.');
+				l.info('Entry inserted in messages table.');
 			}
 		});
 		payload = null;
@@ -154,10 +154,10 @@ function startOutServer(clients){
 	var interval = setInterval(function(){
 		getFirstTimestamp(function(err, timestamp){	
 			if (err || timestamp <=0){
-				//l.info('Trying to get the timestamp of the first record.');
+				l.info('Trying to get the timestamp of the first record.');
 			} else {
 				firstTimestamp = timestamp;
-				//l.info('Got firstTimestamp: '+firstTimestamp);
+				l.info('Got firstTimestamp: '+firstTimestamp);
 				clients.forEach(function(client){
 					if (client.currentTimestamp < firstTimestamp){
 						client.currentTimestamp = firstTimestamp;
@@ -177,7 +177,7 @@ function startOutServer(clients){
 		let client = clients[clientId];
 		let currentTimestamp = client.currentTimestamp;
 		
-		//l.info('Got client\'s timestamp: '+currentTimestamp);
+		l.info('Got client\'s timestamp: '+currentTimestamp);
 		
 		switch(state.statusText){			
 			case 'error':
@@ -187,22 +187,22 @@ function startOutServer(clients){
 			case 'message': 
 				if (halt == 0) {
 					if (currentTimestamp == 0){
-						//l.info('Client\'s timestamp is 0 or null.');
+						l.info('Client\'s timestamp is 0 or null.');
 						break;
 					}
 					try{
 						let from = parseInt(currentTimestamp);
 						let to = parseInt(currentTimestamp)+parseInt(data.step);
-						//l.info('Getting all data between '+from+' and '+to+' timestamp.');
+						l.info('Getting all data between '+from+' and '+to+' timestamp.');
 						db.all('select * from messages where timestamp >= '+from+' and timestamp <'+to,  (err,row) => {
 						if (err) {
 							console.log(err);
 							l.error(err.message);
 						} else {
-							//l.info('Sending data to client');
+							l.info('Sending data to client');
 							outserver.send(row,connection,l);
 						}
-						//l.info('To is '+to);
+						l.info('To is '+to);
 						});
 						client.currentTimestamp=to;
 					} catch(e){
@@ -223,7 +223,7 @@ function startOutServer(clients){
 //function to get the oldest record
 function getFirstTimestamp(callback){
 	var firstTimestamp = 0;
-	//l.info('Trying to get the firsttimestamp');
+	l.info('Trying to get the firsttimestamp');
 	db.each('select timestamp from messages order by timestamp limit 1',  (err,row) => {
 		if (err) {
 			l.error(err.message);
@@ -231,7 +231,7 @@ function getFirstTimestamp(callback){
 			return;
 		} else {
 			firstTimestamp = row.timestamp;
-			//l.info('Found timestamp: '+firstTimestamp);
+			l.info('Found timestamp: '+firstTimestamp);
 			callback(null,firstTimestamp);
 		}
 	});
@@ -263,11 +263,11 @@ function kubeservice() {
 	};
 	var req = http.request(options, function (res) {
 		var chunks = [];
-		//l.info('Building request header');
+		l.info('Building request header');
 		res.on("data", function (chunk) {
 			chunks.push(chunk);
 		});
-		//l.info('Building data payload');
+		l.info('Building data payload');
 		res.on("end", function () {
 			var body = Buffer.concat(chunks);
 		});
@@ -275,7 +275,7 @@ function kubeservice() {
 	req.on('error', error => {
   		console.error(error)
 	});
-	//l.info('Sending now to kubectl http proxy');
+	l.info('Sending now to kubectl http proxy');
 	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "'+appname+'"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
 	req.end();
 }
@@ -294,11 +294,11 @@ function deleteservice() {
 	};
 	var req = http.request(options, function (res) {
 		var chunks = [];
-		//l.info('Building request header');
+		l.info('Building request header');
 		res.on("data", function (chunk) {
 			chunks.push(chunk);
 		});
-		//l.info('Building data payload');
+		l.info('Building data payload');
 		res.on("end", function () {
 			var body = Buffer.concat(chunks);
 		});
@@ -306,7 +306,7 @@ function deleteservice() {
 	req.on('error', error => {
   		console.error(error)
 	});
-	//l.info('Sending now to kubectl http proxy');
+	l.info('Sending now to kubectl http proxy');
 	req.write('{"gracePeriodSeconds": 0,"orphanDependents": false}');
 	req.end();
 }
@@ -320,12 +320,12 @@ db.run('create table messages (id integer not null primary key autoincrement, ui
 	if (err) {
 		l.error(err.message);
     } else {
-		//l.info('Main table messages was created.');
+		l.info('Main table messages was created.');
 		db.run('CREATE INDEX timestamp ON messages (timestamp ASC)',  (err,row) => {
 		if (err) {
 			l.error(err.message);
 		} else {
-			//l.info('Timestamp index created.');		
+			l.info('Timestamp index created.');		
 		}
 		});
 	}
@@ -337,15 +337,15 @@ startOutServer(frontendClients);
 kubeservice();
 
 // Start recieving control MQTT messages
-//l.info('Started recieving control MQTT messages on '+controltopic+'.');
+l.info('Started recieving control MQTT messages on '+controltopic+'.');
 mqttmod.receive(broker,controltopic,filterRequests);	
 
 // Start recieving data MQTT messages
-//l.info('Started recieving data MQTT messages on '+datatopic+'.');
+l.info('Started recieving data MQTT messages on '+datatopic+'.');
 mqttmod.receive(broker,datatopic,filterResults);
 
 // Start recieving control MQTT messages
-//l.info('Started receiving control messages on '+pipelinetopic);
+l.info('Started receiving control messages on '+pipelinetopic);
 mqttmod.receive(broker,pipelinetopic,filterRequests);
 
 // Inform previous node that you are ready
@@ -353,7 +353,7 @@ mqttmod.receive(broker,pipelinetopic,filterRequests);
 mqttmod.send(broker,pipelinetopic,readyresponse);
 
 process.on('SIGTERM', function onSigterm () {
-	//l.info('Got SIGTERM');
+	l.info('Got SIGTERM');
 	mqttmod.send(broker,pipelinetopic,terminatingresponse);
 	deleteservice();
 });
