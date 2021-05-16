@@ -55,11 +55,8 @@ function initDatabase (callback) {
 		if (err) callback(err);
 		pool.query('create database dasfest_database', function(err){
 			if (err) callback(err);
-			pool.query('use dasfest_database', function(err){
+			pool.query('create table dasfest_database.messages (id int not null auto_increment, uid varchar(40) not null, lat double, lon double, timestamp int, primary key (id))', function(err){
 				if (err) callback(err);
-				pool.query('create table messages (id int not null auto_increment, uid varchar(40) not null, lat double, lon double, timestamp int, primary key (id))', function(err){
-					if (err) callback(err);
-				});
 			});
 		});
 	});
