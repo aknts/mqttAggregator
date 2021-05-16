@@ -206,6 +206,7 @@ function startOutServer(clients){
 				break;
 			case 'message': 
 				if (halt == 0) {
+					heapCheck();
 					if (currentTimestamp == 0){
 						l.info('Client\'s timestamp is 0 or null.');
 						break;
