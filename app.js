@@ -349,7 +349,7 @@ initDatabase (function(err){
 		l.info('Exiting now.');
 		process.exit(1);
 	}
-)
+});
 livemodules.push({"node":mynodeid,"name":"aggregator"});
 
 // Create table in our sqlite db
