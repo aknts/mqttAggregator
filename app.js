@@ -253,9 +253,11 @@ function getFirstTimestamp(callback){
 			return;
 		} else {
 			//firstTimestamp = row.timestamp;
-			firstTimestamp = row[0].timestamp;
-			l.info('Found timestamp: '+firstTimestamp);
-			callback(null,firstTimestamp);
+			if (row.length == 1) {
+				firstTimestamp = row[0].timestamp;
+				l.info('Found timestamp: '+firstTimestamp);
+				callback(null,firstTimestamp);
+			}
 		}
 	});
 }
