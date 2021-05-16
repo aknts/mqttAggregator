@@ -60,13 +60,6 @@ function initDatabase (callback) {
 			});
 		});
 	});
-
-
-	/*let q = 'insert into dasfest_database.messages (uid,lat,lon,timestamp) values ("'+results.uid+'",'+results.lat+','+results.lon+','+results.timestamp+');';
-	pool.query(q, function(err, rows, fields) {
-		if (err) throw err;
-		console.log('Insert data to db');
-	});*/
 }
 
 function filterRequests(payload){
@@ -221,13 +214,14 @@ function startOutServer(clients){
 						let from = parseInt(currentTimestamp);
 						let to = parseInt(currentTimestamp)+parseInt(data.step);
 						l.info('Getting all data between '+from+' and '+to+' timestamp.');
-						db.all('select * from messages where timestamp >= '+from+' and timestamp <'+to,  (err,row) => {
+						//db.all('select * from messages where timestamp >= '+from+' and timestamp <'+to,  (err,row) => {
+						pool.query('select * from dasfest_database.messages where timestamp >= '+from+' and timestamp <'+to,  (err,rows) => {	
 						if (err) {
 							console.log(err);
 							l.error(err.message);
 						} else {
 							l.info('Sending data to client');
-							outserver.send(row,connection,l);
+							outserver.send(rows,connection,l);
 						}
 						l.info('To is '+to);
 						});
