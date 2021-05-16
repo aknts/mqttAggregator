@@ -245,7 +245,8 @@ function startOutServer(clients){
 function getFirstTimestamp(callback){
 	var firstTimestamp = 0;
 	l.info('Trying to get the firsttimestamp');
-	db.each('select timestamp from messages order by timestamp limit 1',  (err,row) => {
+	//db.each('select timestamp from messages order by timestamp limit 1',  (err,row) => {
+	pool.query('select timestamp from messages order by timestamp limit 1',  (err,row) => {	
 		if (err) {
 			l.error(err.message);
 			callback(err);
