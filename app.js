@@ -376,8 +376,8 @@ l.info('Started recieving control MQTT messages on '+controltopic+'.');
 mqttmod.receive(broker,controltopic,filterRequests);	
 
 // Start recieving data MQTT messages
-l.info('Started recieving data MQTT messages on '+datatopic+'.');
-mqttmod.receive(broker,datatopic,filterResults);
+//l.info('Started recieving data MQTT messages on '+datatopic+'.');
+//mqttmod.receive(broker,datatopic,filterResults);
 
 // Start recieving control MQTT messages
 l.info('Started receiving control messages on '+pipelinetopic);
