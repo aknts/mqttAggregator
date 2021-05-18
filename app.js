@@ -20,22 +20,24 @@ var namespace = config.namespace;
 var pipelinetopic = config.nameid+'/broadcast'
 var rate_reconnect = config.appsettings.rate_reconnect;
 var logmode = config.appsettings.logmode;
-var dbfile = 'dasfest_database.db';
-var dbSettings = {host:'192.168.2.240',user:'nodejs',password:'justanodejsapp'};
+//var dbfile = 'dasfest_database.db';
+//var mariadb = {host:'192.168.2.240',user:'nodejs',password:'justanodejsapp',db:'dasfestfinal'};
+var mariadb = {host:'192.168.2.241',port:'30306',user:'root',password:'mariadbhasapassword',db:'dasfestfinal'};
 
 // Modules
-const sqlite3 = require('sqlite3').verbose();
+//const sqlite3 = require('sqlite3').verbose();
 const mqttmod = require('mqttmod');
-const dbclass = require('./sqlite');
+//const dbclass = require('./sqlite');
 const staticServer = require('./staticserver');
 const l = require('mqttlogger')(broker, logtopic, mqttmod, logmode);
-var db = dbclass.connectDB(sqlite3,dbfile);
+//var db = dbclass.connectDB(sqlite3,dbfile);
 var mysql = require('mysql');
 var pool  = mysql.createPool({
   connectionLimit : 10,
-  host            : dbSettings.host,
-  user            : dbSettings.user,
-  password        : dbSettings.password
+  host            : mariadb.host,
+  port			  : mariadb.port,
+  user            : mariadb.user,
+  password        : mariadb.password
 });
 
 // Variables
@@ -51,11 +53,11 @@ var firstentrytrigger = 0;
 
 // Functions
 function initDatabase (callback) {
-	pool.query('drop database if exists dasfest_database', function(err, result){
+	pool.query('drop database if exists '+mariadb.db, function(err, result){
 		if (err) callback(err);
-		pool.query('create database dasfest_database', function(err){
+		pool.query('create database '+mariadb.db, function(err){
 			if (err) callback(err);
-			pool.query('create table dasfest_database.messages (id int not null auto_increment, uid varchar(40) not null, lat double, lon double, timestamp int, primary key (id))', function(err){
+			pool.query('create table '+mariadb.db+'.messages (id int not null auto_increment, uid varchar(40) not null, lat double, lon double, timestamp int, primary key (id))', function(err){
 				if (err) callback(err);
 			});
 		});
@@ -216,7 +218,7 @@ function startOutServer(clients){
 						let to = parseInt(currentTimestamp)+parseInt(data.step);
 						l.info('Getting all data between '+from+' and '+to+' timestamp.');
 						//db.all('select * from messages where timestamp >= '+from+' and timestamp <'+to,  (err,row) => {
-						pool.query('select * from dasfest_database.messages where timestamp >= '+from+' and timestamp <'+to,  (err,rows) => {	
+						pool.query('select * from '+mariadb.db+'.messages where timestamp >= '+from+' and timestamp <'+to,  (err,rows) => {	
 						if (err) {
 							console.log(err);
 							l.error(err.message);
@@ -247,7 +249,7 @@ function getFirstTimestamp(callback){
 	var firstTimestamp = 0;
 	l.info('Trying to get the firsttimestamp');
 	//db.each('select timestamp from messages order by timestamp limit 1',  (err,row) => {
-	pool.query('select timestamp from dasfest_database.messages order by timestamp limit 1',  (err,row) => {	
+	pool.query('select timestamp from '+mariadb.db+'.messages order by timestamp limit 1',  (err,row) => {	
 		if (err) {
 			l.error(err.message);
 			callback(err);
