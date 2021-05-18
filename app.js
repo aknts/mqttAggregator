@@ -150,7 +150,7 @@ function filterRequests(payload){
 		}
 	}
 }
-
+/*
 function filterResults(payload){
 	if (halt == 0) {
 		heapCheck();
@@ -167,7 +167,7 @@ function filterResults(payload){
 		data = null;
 	}
 }
-
+*/
 //start the server to send data to the frontend clients, in batches, starting from the oldest timestamp
 //Since the DB may be empty, the server will only send data when it retrieves a record with the minimum timestamp
 function startOutServer(clients){
@@ -349,7 +349,7 @@ initDatabase (function(err){
 	}
 });
 livemodules.push({"node":mynodeid,"name":"aggregator"});
-
+/*
 // Create table in our sqlite db
 db.run('create table messages (id integer not null primary key autoincrement, uid varchar(40) not null, lat double, lon double, timestamp integer)',  (err,row) => {
 	if (err) {
@@ -365,7 +365,7 @@ db.run('create table messages (id integer not null primary key autoincrement, ui
 		});
 	}
 });
-
+*/
 // Start webserver
 staticServer.init(l);
 startOutServer(frontendClients);
