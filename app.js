@@ -369,7 +369,7 @@ db.run('create table messages (id integer not null primary key autoincrement, ui
 // Start webserver
 staticServer.init(l);
 startOutServer(frontendClients);
-kubeservice();
+//kubeservice();
 
 // Start recieving control MQTT messages
 l.info('Started recieving control MQTT messages on '+controltopic+'.');
@@ -390,5 +390,6 @@ mqttmod.send(broker,pipelinetopic,readyresponse);
 process.on('SIGTERM', function onSigterm () {
 	l.info('Got SIGTERM');
 	mqttmod.send(broker,pipelinetopic,terminatingresponse);
-	deleteservice();
+	//deleteservice();
+	
 });
