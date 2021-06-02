@@ -22,7 +22,6 @@
     "mqttlogger": "github:aknts/mqttlogger",
     "mqttmod": "github:aknts/mqttmod",
     "path": "^0.12.7",
-    "sqlite3": "^ 4.0.0",
     "websocket": "^1.0.28",
     "mysql": "^2.16.0"
   }

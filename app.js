@@ -8,11 +8,7 @@ var broker = config.globalsettings.broker;
 var mynodeid = config.mynodeid;
 var logtopic = mynodeid+'/log';
 var controltopic = mynodeid+'/control';
-var datatopic = mynodeid+'/data';
-var nextnode = config.nextnode;
 var previousnode = config.previousnode;
-var nextnodedatatopic = nextnode+'/data';
-var previousnodecontroltopic = previousnode+'/control';
 var previousnodebroadcasttopic = previousnode+'/broadcast';
 var appname = config.appname;
 var kubectlproxy = config.kubeproxy.split(":");
@@ -20,18 +16,12 @@ var namespace = config.namespace;
 var pipelinetopic = config.nameid+'/broadcast'
 var rate_reconnect = config.appsettings.rate_reconnect;
 var logmode = config.appsettings.logmode;
-//var dbfile = 'dasfest_database.db';
-//var mariadb = {host:'192.168.2.240',user:'nodejs',password:'justanodejsapp',db:'dasfestfinal'};
-//var mariadb = {host:'192.168.2.241',port:'30306',user:'root',password:'mariadbhasapassword',db:'dasfestfinal'};
 var mariadb = config.appsettings.mariadb;
 
 // Modules
-//const sqlite3 = require('sqlite3').verbose();
 const mqttmod = require('mqttmod');
-//const dbclass = require('./sqlite');
 const staticServer = require('./staticserver');
 const l = require('mqttlogger')(broker, logtopic, mqttmod, logmode);
-//var db = dbclass.connectDB(sqlite3,dbfile);
 var mysql = require('mysql');
 var pool  = mysql.createPool({
   connectionLimit : 10,
@@ -48,9 +38,7 @@ var terminatingresponse = '{"node":"'+mynodeid+'","name":"aggregator","request":
 var halt = 1;
 var appmodules = ['emitter','filter','loadbalancer','trilaterator','aggregator'];
 var livemodules = [];
-var firstTimestamp = 0;
 var frontendClients = [];
-var firstentrytrigger = 0;
 
 // Functions
 function initDatabase (callback) {
@@ -151,24 +139,7 @@ function filterRequests(payload){
 		}
 	}
 }
-/*
-function filterResults(payload){
-	if (halt == 0) {
-		heapCheck();
-		var data = JSON.parse(payload);
-		l.info('Received an entry: '+payload);
-		db.run('insert into messages (uid,lat,lon,timestamp) values ("'+data.uid+'",'+data.lat+','+data.lon+','+data.timestamp+');',  (err,row) => {
-			if (err) {
-				l.error(err.message);
-			} else {
-				l.info('Entry inserted in messages table.');
-			}
-		});
-		payload = null;
-		data = null;
-	}
-}
-*/
+
 //start the server to send data to the frontend clients, in batches, starting from the oldest timestamp
 //Since the DB may be empty, the server will only send data when it retrieves a record with the minimum timestamp
 function startOutServer(clients){
@@ -218,7 +189,6 @@ function startOutServer(clients){
 						let from = parseInt(currentTimestamp);
 						let to = parseInt(currentTimestamp)+parseInt(data.step);
 						l.info('Getting all data between '+from+' and '+to+' timestamp.');
-						//db.all('select * from messages where timestamp >= '+from+' and timestamp <'+to,  (err,row) => {
 						pool.query('select * from '+mariadb.db+'.messages where timestamp >= '+from+' and timestamp <'+to,  (err,rows) => {	
 						if (err) {
 							console.log(err);
@@ -249,14 +219,12 @@ function startOutServer(clients){
 function getFirstTimestamp(callback){
 	var firstTimestamp = 0;
 	l.info('Trying to get the firsttimestamp');
-	//db.each('select timestamp from messages order by timestamp limit 1',  (err,row) => {
 	pool.query('select timestamp from '+mariadb.db+'.messages order by timestamp limit 1',  (err,row) => {	
 		if (err) {
 			l.error(err.message);
 			callback(err);
 			return;
 		} else {
-			//firstTimestamp = row.timestamp;
 			if (row.length == 1) {
 				firstTimestamp = row[0].timestamp;
 				l.info('Found timestamp: '+firstTimestamp);
@@ -278,69 +246,6 @@ function heapCheck () {
 	}
 }
 
-function kubeservice() {
-	var qs = require("querystring");
-	var http = require("http");	
-	var options = {
-	  "method": "POST",
-	  "hostname": ""+kubectlproxy[0]+"",
-	  "port": ""+kubectlproxy[1]+"",
-	  "path": "/api/v1/namespaces/"+namespace+"/services",
-	  "headers": {
-		"content-type": "application/json"
-	  }
-	};
-	var req = http.request(options, function (res) {
-		var chunks = [];
-		l.info('Building request header');
-		res.on("data", function (chunk) {
-			chunks.push(chunk);
-		});
-		l.info('Building data payload');
-		res.on("end", function () {
-			var body = Buffer.concat(chunks);
-		});
-	});
-	req.on('error', error => {
-  		console.error(error)
-	});
-	l.info('Sending now to kubectl http proxy');
-	req.write('{"kind":"Service","apiVersion": "v1","metadata":{"name": "'+appname+'"},"spec":{"ports":[{"name": "http","port": 30080,"targetPort": 30080,"nodePort": 30080},{"name": "ws","port": 30114,"targetPort":30114,"nodePort": 30114}],"selector":{"app":"'+appname+'"},"type":"NodePort"}}');
-	req.end();
-}
-
-function deleteservice() {
-	var qs = require("querystring");
-	var http = require("http");	
-	var options = {
-	  "method": "DELETE",
-	  "hostname": ""+kubectlproxy[0]+"",
-	  "port": ""+kubectlproxy[1]+"",
-	  "path": "/api/v1/namespaces/"+namespace+"/services/"+appname+"",
-	  "headers": {
-		"content-type": "application/json"
-	  }
-	};
-	var req = http.request(options, function (res) {
-		var chunks = [];
-		l.info('Building request header');
-		res.on("data", function (chunk) {
-			chunks.push(chunk);
-		});
-		l.info('Building data payload');
-		res.on("end", function () {
-			var body = Buffer.concat(chunks);
-		});
-	});
-	req.on('error', error => {
-  		console.error(error)
-	});
-	l.info('Sending now to kubectl http proxy');
-	req.write('{"gracePeriodSeconds": 0,"orphanDependents": false}');
-	req.end();
-}
-
-
 // Begin execution
 initDatabase (function(err){
 	if (err){
@@ -350,47 +255,23 @@ initDatabase (function(err){
 	}
 });
 livemodules.push({"node":mynodeid,"name":"aggregator"});
-/*
-// Create table in our sqlite db
-db.run('create table messages (id integer not null primary key autoincrement, uid varchar(40) not null, lat double, lon double, timestamp integer)',  (err,row) => {
-	if (err) {
-		l.error(err.message);
-    } else {
-		l.info('Main table messages was created.');
-		db.run('CREATE INDEX timestamp ON messages (timestamp ASC)',  (err,row) => {
-		if (err) {
-			l.error(err.message);
-		} else {
-			l.info('Timestamp index created.');		
-		}
-		});
-	}
-});
-*/
+
 // Start webserver
 staticServer.init(l);
 startOutServer(frontendClients);
-//kubeservice();
 
 // Start recieving control MQTT messages
 l.info('Started recieving control MQTT messages on '+controltopic+'.');
 mqttmod.receive(broker,controltopic,filterRequests);	
-
-// Start recieving data MQTT messages
-//l.info('Started recieving data MQTT messages on '+datatopic+'.');
-//mqttmod.receive(broker,datatopic,filterResults);
 
 // Start recieving control MQTT messages
 l.info('Started receiving control messages on '+pipelinetopic);
 mqttmod.receive(broker,pipelinetopic,filterRequests);
 
 // Inform previous node that you are ready
-//mqttmod.send(broker,previousnodebroadcasttopic,readyresponse);
 mqttmod.send(broker,pipelinetopic,readyresponse);
 
 process.on('SIGTERM', function onSigterm () {
 	l.info('Got SIGTERM');
 	mqttmod.send(broker,pipelinetopic,terminatingresponse);
-	//deleteservice();
-	
 });
