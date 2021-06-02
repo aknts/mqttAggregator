@@ -193,7 +193,7 @@
         var moreInfo = {};
 		
 		//var infoLabel = 'There are ' + window.addressPointsCnt.toString() + ' new entries. Red (max) >= ' + cnt + ' entries. Unique MAC: ' + uniqueMac.length.toString() + '. Data from ' + new Date((tsNewest+timezoneOffset)*1000).toLocaleString() + ' every '+step+'\'\' UNTIL ' + new Date((tsOldest+timezoneOffset)*1000).toLocaleString() + '.';
-    var infoLabel = 'There are ' + window.addressPointsCnt.toString() + ' new entries. Red (max) >= ' + cnt + ' entries. Unique MAC: ' + uniqueMac.length.toString() + '. Data from ' + new Date((tsNewest).toLocaleString() + ' every '+step+'\'\' UNTIL ' + new Date((tsOldest).toLocaleString() + '.';
+    var infoLabel = 'There are ' + window.addressPointsCnt.toString() + ' new entries. Red (max) >= ' + cnt + ' entries. Unique MAC: ' + uniqueMac.length.toString() + '. Data from ' + new Date(tsNewest).toLocaleString() + ' every '+step+'\'\' UNTIL ' + new Date(tsOldest).toLocaleString() + '.';
 		console.log(infoLabel);
 		
         // label that shows status
